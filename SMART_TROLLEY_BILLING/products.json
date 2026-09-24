@@ -1,0 +1,14 @@
+{
+    "8D:80:F0:CF": {
+        "name": "Bread",
+        "price": 60
+    },
+    "5D:F2:F0:CF": {
+        "name": "Milk",
+        "price": 80
+    },
+    "2E:0F:02:07": {
+        "name": "Biscuit",
+        "price": 50
+    }
+}

@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Smart Trolley</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+    <style>
+
+        .security-status {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .authorized {
+            background: #e8f7e8;
+            color: #168a16;
+        }
+
+        .unauthorized {
+            background: #ffe8e8;
+            color: #d00000;
+        }
+
+        .waiting {
+            background: #f1f1f1;
+            color: #666;
+        }
+
+        .logout-btn {
+            padding: 9px 16px;
+            border: none;
+            border-radius: 7px;
+            background: #d9534f;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .logout-btn:hover {
+            opacity: 0.9;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<div class="container">
+
+
+    <!-- ================= HEADER ================= -->
+
+    <header>
+
+        <div class="logo">
+
+            🛒 <b>Smart<span>Trolley</span></b>
+
+        </div>
+
+
+        <div class="user-info">
+
+            <span id="username">
+                User
+            </span>
+
+            <span class="status">
+                🟢 Arduino Connected
+            </span>
+
+            <button
+                class="logout-btn"
+                onclick="logout()">
+
+                Logout
+
+            </button>
+
+        </div>
+
+    </header>
+
+
+
+    <!-- ================= TOP CARDS ================= -->
+
+    <div class="top-cards">
+
+
+        <!-- RFID -->
+
+        <div class="card">
+
+            <h3>📡 RFID Card</h3>
+
+            <h2 id="uid">
+
+                No Card
+
+            </h2>
+
+        </div>
+
+
+
+        <!-- DISTANCE -->
+
+        <div class="card">
+
+            <h3>📏 Distance</h3>
+
+            <h2>
+
+                <span id="distance">
+                    0
+                </span>
+
+                cm
+
+            </h2>
+
+        </div>
+
+
+
+        <!-- ITEMS -->
+
+        <div class="card">
+
+            <h3>🛍️ Items in Cart</h3>
+
+            <h2 id="items">
+
+                0
+
+            </h2>
+
+        </div>
+
+
+    </div>
+
+
+
+    <!-- ================= RFID SECURITY STATUS ================= -->
+
+    <div id="securityStatus"
+         class="security-status waiting">
+
+        🔐 Waiting for RFID card...
+
+    </div>
+
+
+
+    <!-- ================= MAIN ================= -->
+
+    <div class="main-grid">
+
+
+        <!-- ================= PRODUCTS ================= -->
+
+        <div class="products-section">
+
+            <h2>🏷️ Products</h2>
+
+
+            <div class="products">
+
+
+                <div class="product">
+
+                    <div class="emoji">
+                        🍞
+                    </div>
+
+                    <h3>
+                        Bread
+                    </h3>
+
+                    <p>
+                        ৳ 60
+                    </p>
+
+                </div>
+
+
+
+                <div class="product">
+
+                    <div class="emoji">
+                        🥛
+                    </div>
+
+                    <h3>
+                        Milk
+                    </h3>
+
+                    <p>
+                        ৳ 80
+                    </p>
+
+                </div>
+
+
+
+                <div class="product">
+
+                    <div class="emoji">
+                        🍪
+                    </div>
+
+                    <h3>
+                        Biscuit
+                    </h3>
+
+                    <p>
+                        ৳ 50
+                    </p>
+
+                </div>
+
+
+            </div>
+
+
+
+            <div id="message"
+                 class="message">
+
+                Scan an RFID card to add product
+
+            </div>
+
+
+        </div>
+
+
+
+        <!-- ================= BILL ================= -->
+
+        <div class="bill-section">
+
+            <h2>🧾 Current Bill</h2>
+
+
+            <div id="bill">
+
+                <p>
+                    Cart is empty
+                </p>
+
+            </div>
+
+
+            <hr>
+
+
+            <div class="total">
+
+                <strong>
+                    Total
+                </strong>
+
+
+                <strong>
+
+                    ৳
+
+                    <span id="total">
+                        0.00
+                    </span>
+
+                </strong>
+
+            </div>
+
+
+
+            <!-- CHECKOUT -->
+
+            <button
+                class="checkout"
+                onclick="checkout()">
+
+                ✓ Checkout
+
+            </button>
+
+
+
+            <!-- CLEAR -->
+
+            <button
+                class="clear"
+                onclick="clearCart()">
+
+                Clear Cart
+
+            </button>
+
+
+        </div>
+
+
+    </div>
+
+
+</div>
+
+
+
+<!-- ================= RECEIPT MODAL ================= -->
+
+<div id="receiptModal"
+     class="modal">
+
+
+    <div class="receipt-box">
+
+
+        <h2>
+
+            ✅ Payment Successful
+
+        </h2>
+
+
+        <p>
+
+            Thank you for shopping!
+
+        </p>
+
+
+        <pre id="receiptText"></pre>
+
+
+
+        <button
+            class="checkout"
+            onclick="printReceipt()">
+
+            🖨️ Print Receipt
+
+        </button>
+
+
+
+        <button
+            class="clear"
+            onclick="closeReceipt()">
+
+            Close
+
+        </button>
+
+
+    </div>
+
+
+</div>
+
+
+
+<script>
+
+
+// ======================================
+// UPDATE DASHBOARD
+// ======================================
+
+function updateDashboard() {
+
+
+    fetch("/data")
+
+
+    .then(response => {
+
+
+        if (response.status === 401) {
+
+            window.location.href =
+                "/";
+
+            return null;
+
+        }
+
+
+        return response.json();
+
+    })
+
+
+    .then(data => {
+
+
+        if (!data) {
+            return;
+        }
+
+
+
+        // ==========================
+        // USER
+        // ==========================
+
+        document.getElementById(
+            "username"
+        ).innerText =
+            "👤 " + data.username;
+
+
+
+        // ==========================
+        // RFID UID
+        // ==========================
+
+        document.getElementById(
+            "uid"
+        ).innerText =
+            data.uid;
+
+
+
+        // ==========================
+        // DISTANCE
+        // ==========================
+
+        document.getElementById(
+            "distance"
+        ).innerText =
+            data.distance;
+
+
+
+        // ==========================
+        // ITEMS
+        // ==========================
+
+        document.getElementById(
+            "items"
+        ).innerText =
+            data.items;
+
+
+
+        // ==========================
+        // TOTAL
+        // ==========================
+
+        document.getElementById(
+            "total"
+        ).innerText =
+            data.total.toFixed(2);
+
+
+
+        // ==========================
+        // RFID SECURITY STATUS
+        // ==========================
+
+        const securityStatus =
+            document.getElementById(
+                "securityStatus"
+            );
+
+
+        const status =
+            data.rfid_status || "";
+
+
+        if (
+            status ===
+            "UNAUTHORIZED RFID CARD"
+        ) {
+
+            securityStatus.innerText =
+                "🚫 UNAUTHORIZED RFID CARD";
+
+            securityStatus.className =
+                "security-status unauthorized";
+
+
+            document.getElementById(
+                "message"
+            ).innerText =
+                "⚠️ This RFID card is not registered.";
+
+
+        }
+
+        else if (
+            status.startsWith(
+                "Authorized:"
+            )
+        ) {
+
+            securityStatus.innerText =
+                "✅ " + status;
+
+            securityStatus.className =
+                "security-status authorized";
+
+
+            document.getElementById(
+                "message"
+            ).innerText =
+                "✓ Product added successfully.";
+
+
+        }
+
+        else {
+
+            securityStatus.innerText =
+                "🔐 " +
+                status;
+
+            securityStatus.className =
+                "security-status waiting";
+
+        }
+
+
+
+        // ==========================
+        // BILL
+        // ==========================
+
+        let billHTML = "";
+
+
+        if (
+            Object.keys(
+                data.cart
+            ).length === 0
+        ) {
+
+            billHTML =
+                "<p>Cart is empty</p>";
+
+        }
+
+
+        else {
+
+
+            for (
+                let name in data.cart
+            ) {
+
+
+                let item =
+                    data.cart[name];
+
+
+                let subtotal =
+                    item.price *
+                    item.qty;
+
+
+                billHTML += `
+
+                    <div class="bill-item">
+
+                        <div>
+
+                            <b>
+                                ${name}
+                            </b>
+
+                            <small>
+                                Qty: ${item.qty}
+                            </small>
+
+                        </div>
+
+
+                        <strong>
+
+                            ৳ ${subtotal}
+
+                        </strong>
+
+                    </div>
+
+                `;
+
+            }
+
+        }
+
+
+        document.getElementById(
+            "bill"
+        ).innerHTML =
+            billHTML;
+
+
+    })
+
+
+    .catch(error => {
+
+        console.error(
+            "Dashboard error:",
+            error
+        );
+
+    });
+
+}
+
+
+
+// ======================================
+// CHECKOUT
+// ======================================
+
+function checkout() {
+
+
+    fetch(
+        "/checkout",
+        {
+            method: "POST"
+        }
+    )
+
+
+    .then(response =>
+        response.json()
+    )
+
+
+    .then(data => {
+
+
+        if (!data.success) {
+
+
+            alert(
+                data.message
+            );
+
+
+            return;
+
+        }
+
+
+
+        // Show receipt
+
+        document.getElementById(
+            "receiptText"
+        ).innerText =
+            data.receipt_text;
+
+
+
+        document.getElementById(
+            "receiptModal"
+        ).style.display =
+            "flex";
+
+
+
+        // Update dashboard
+
+        updateDashboard();
+
+
+    })
+
+    .catch(error => {
+
+        console.error(
+            "Checkout error:",
+            error
+        );
+
+        alert(
+            "Checkout failed."
+        );
+
+    });
+
+}
+
+
+
+// ======================================
+// CLEAR CART
+// ======================================
+
+function clearCart() {
+
+
+    fetch(
+        "/clear",
+        {
+            method: "POST"
+        }
+    )
+
+
+    .then(response =>
+        response.json()
+    )
+
+
+    .then(data => {
+
+
+        if (!data.success) {
+
+            alert(
+                data.message
+            );
+
+            return;
+
+        }
+
+
+        updateDashboard();
+
+
+        document.getElementById(
+            "message"
+        ).innerText =
+            "✓ Cart cleared";
+
+
+    });
+
+}
+
+
+
+// ======================================
+// PRINT RECEIPT
+// ======================================
+
+function printReceipt() {
+
+
+    let receipt =
+        document.getElementById(
+            "receiptText"
+        ).innerText;
+
+
+
+    let printWindow =
+        window.open(
+            "",
+            "_blank"
+        );
+
+
+
+    printWindow.document.write(`
+
+        <html>
+
+        <head>
+
+            <title>
+                Smart Trolley Receipt
+            </title>
+
+
+            <style>
+
+                body {
+
+                    font-family:
+                        monospace;
+
+                    padding: 30px;
+
+                }
+
+
+                pre {
+
+                    font-size: 16px;
+
+                }
+
+            </style>
+
+        </head>
+
+
+        <body>
+
+            <pre>${receipt}</pre>
+
+
+            <script>
+
+                window.print();
+
+            <\/script>
+
+
+        </body>
+
+        </html>
+
+    `);
+
+
+
+    printWindow.document.close();
+
+}
+
+
+
+// ======================================
+// CLOSE RECEIPT
+// ======================================
+
+function closeReceipt() {
+
+
+    document.getElementById(
+        "receiptModal"
+    ).style.display =
+        "none";
+
+}
+
+
+
+// ======================================
+// LOGOUT
+// ======================================
+
+function logout() {
+
+
+    fetch(
+        "/logout",
+        {
+            method: "POST"
+        }
+    )
+
+
+    .then(response =>
+        response.json()
+    )
+
+
+    .then(data => {
+
+
+        if (data.success) {
+
+            window.location.href =
+                "/";
+
+        }
+
+    })
+
+
+    .catch(error => {
+
+        console.error(
+            "Logout error:",
+            error
+        );
+
+    });
+
+}
+
+
+
+// ======================================
+// AUTO UPDATE
+// ======================================
+
+setInterval(
+    updateDashboard,
+    500
+);
+
+
+updateDashboard();
+
+
+</script>
+
+
+</body>
+
+</html>

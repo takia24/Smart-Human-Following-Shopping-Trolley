@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Smart Trolley - Login</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+
+            margin: 0;
+
+            min-height: 100vh;
+
+            display: flex;
+
+            justify-content: center;
+
+            align-items: center;
+
+            font-family: Arial, sans-serif;
+
+            background: #f4f7fb;
+        }
+
+
+        .login-box {
+
+            width: 360px;
+
+            padding: 35px;
+
+            background: white;
+
+            border-radius: 15px;
+
+            box-shadow:
+                0 10px 30px rgba(0, 0, 0, 0.15);
+
+            text-align: center;
+        }
+
+
+        .logo {
+
+            font-size: 40px;
+
+            margin-bottom: 10px;
+        }
+
+
+        h1 {
+
+            margin: 5px 0;
+
+            font-size: 26px;
+        }
+
+
+        .subtitle {
+
+            color: #777;
+
+            margin-bottom: 25px;
+        }
+
+
+        input {
+
+            width: 100%;
+
+            padding: 13px;
+
+            margin-bottom: 12px;
+
+            border: 1px solid #ddd;
+
+            border-radius: 8px;
+
+            font-size: 15px;
+
+            outline: none;
+        }
+
+
+        input:focus {
+
+            border-color: #555;
+        }
+
+
+        button {
+
+            width: 100%;
+
+            padding: 13px;
+
+            border: none;
+
+            border-radius: 8px;
+
+            background: #222;
+
+            color: white;
+
+            font-size: 16px;
+
+            cursor: pointer;
+        }
+
+
+        button:hover {
+
+            opacity: 0.9;
+        }
+
+
+        #message {
+
+            margin-top: 15px;
+
+            font-weight: bold;
+
+            min-height: 20px;
+        }
+
+
+        .security {
+
+            margin-top: 20px;
+
+            padding: 10px;
+
+            background: #f1f1f1;
+
+            border-radius: 8px;
+
+            font-size: 13px;
+
+            color: #555;
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<div class="login-box">
+
+
+    <div class="logo">
+
+        🛒
+
+    </div>
+
+
+    <h1>
+
+        Smart Trolley
+
+    </h1>
+
+
+    <div class="subtitle">
+
+        Secure Dashboard Login
+
+    </div>
+
+
+    <input
+        type="text"
+        id="username"
+        placeholder="Username"
+        autocomplete="username">
+
+
+    <input
+        type="password"
+        id="password"
+        placeholder="Password"
+        autocomplete="current-password">
+
+
+    <button onclick="login()">
+
+        🔐 Login
+
+    </button>
+
+
+    <div id="message"></div>
+
+
+    <div class="security">
+
+        🛡️ Protected Dashboard<br>
+
+        Authentication Required
+
+    </div>
+
+
+</div>
+
+
+
+<script>
+
+
+function login() {
+
+
+    const username =
+        document.getElementById(
+            "username"
+        ).value.trim();
+
+
+    const password =
+        document.getElementById(
+            "password"
+        ).value;
+
+
+    const message =
+        document.getElementById(
+            "message"
+        );
+
+
+    if (!username || !password) {
+
+        message.innerText =
+            "Please enter username and password.";
+
+        message.style.color =
+            "red";
+
+        return;
+
+    }
+
+
+    fetch(
+        "/login",
+        {
+
+            method: "POST",
+
+            headers: {
+
+                "Content-Type":
+                    "application/json"
+
+            },
+
+            body: JSON.stringify({
+
+                username: username,
+
+                password: password
+
+            })
+
+        }
+    )
+
+
+    .then(response => {
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Login request failed"
+            );
+
+        }
+
+        return response.json();
+
+    })
+
+
+    .then(data => {
+
+
+        if (data.success) {
+
+
+            message.innerText =
+                "✓ Login successful";
+
+            message.style.color =
+                "green";
+
+
+            setTimeout(
+                function() {
+
+                    window.location.href =
+                        "/";
+
+                },
+                500
+            );
+
+
+        }
+
+        else {
+
+            message.innerText =
+                "❌ " + data.message;
+
+            message.style.color =
+                "red";
+
+        }
+
+    })
+
+
+    .catch(error => {
+
+        console.error(error);
+
+        message.innerText =
+            "❌ Server connection error.";
+
+        message.style.color =
+            "red";
+
+    });
+
+}
+
+
+
+// Press Enter to login
+
+document.addEventListener(
+    "keydown",
+    function(event) {
+
+        if (event.key === "Enter") {
+
+            login();
+
+        }
+
+    }
+);
+
+</script>
+
+
+</body>
+
+</html>
